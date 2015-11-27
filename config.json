@@ -1,0 +1,50 @@
+{
+  "access_key_id":{
+    "label": "Access Key ID",
+    "type": "String",
+    "required": true,
+    "help": "Please provide your AWS Access Key ID."
+  },
+  "secret_access_key":{
+    "label": "Secret Access Key",
+    "type": "String",
+    "required": true,
+    "help": "Please provide your AWS Secret Access Key."
+  },
+  "region":{
+    "label": "Region",
+    "type": "String",
+    "required": true,
+    "help": "Please provide your AWS Region."
+  },
+  "api_version":{
+    "label": "API Version",
+    "type": "String",
+    "required": true,
+    "help": "Please provide your AWS API Version."
+  },
+  "default_message":{
+    "label": "Default Message",
+    "type": "String",
+    "required": true,
+    "help": "Please provide a default message."
+  },
+  "topic_arn":{
+    "label": "Default Topic ARN",
+    "type": "String",
+    "required": true,
+    "help": "Please provide a default Topic ARN."
+  },
+  "target_arn":{
+    "label": "Default Target ARN",
+    "type": "String",
+    "required": false,
+    "help": "(Optional)Please provide a default Target ARN."
+  },
+  "default_subject":{
+    "label": "Default Subject",
+    "type": "String",
+    "required": false,
+    "help": "(Optional)Please provide a default subject."
+  }
+}
