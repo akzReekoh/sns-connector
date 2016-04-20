@@ -78,16 +78,20 @@ let sendData = (data, callback) => {
 platform.on('data', function (data) {
     if(isPlainObject(data)){
         sendData(data, (error) => {
-            console.error(error);
-            platform.handleException(error);
+            if(error) {
+                console.error(error);
+                platform.handleException(error);
+            }
         });
     }
     else if(isArray(data)){
         async.each(data, (datum, done) => {
             sendData(datum, done);
         }, (error) => {
-            console.error(error);
-            platform.handleException(error);
+            if(error) {
+                console.error(error);
+                platform.handleException(error);
+            }
         });
     }
     else
