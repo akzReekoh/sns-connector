@@ -1,90 +1,68 @@
-'use strict';
+'use strict'
 
-const REGION = 'us-east-1',
-    API_VERSION = '2010-03-31',
-    ACCESS_KEY_ID = 'AKIAJCDH5ZSQYJHPXOZQ',
-    SECRET_ACCESS_KEY= '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';
+const amqp = require('amqplib')
 
-var cp     = require('child_process'),
-	assert = require('assert'),
-	connector;
+const REGION = 'us-east-1'
+const API_VERSION = '2010-03-31'
+const ACCESS_KEY_ID = 'AKIAIOU2EZVMZ7DR44NQ'
+const SECRET_ACCESS_KEY= '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'
 
-describe('Connector', function () {
-	this.slow(5000);
+let _channel = null
+let _conn = null
+let app = null
 
-	after('terminate child process', function (done) {
-		this.timeout(7000);
-        setTimeout(function(){
-            connector.kill('SIGKILL');
-			done();
-        }, 5000);
-	});
+describe('SNS Connector Test', () => {
+  before('init', () => {
+    process.env.ACCOUNT = 'adinglasan'
+    process.env.CONFIG = JSON.stringify({
+      accessKeyId: ACCESS_KEY_ID,
+      secretAccessKey : SECRET_ACCESS_KEY,
+      region : REGION,
+      apiVersion : API_VERSION,
+      topicArn: 'arn:aws:sns:us-east-1:821215833087:snsPluginTopic'
+    })
+    process.env.INPUT_PIPE = 'ip.sns'
+    process.env.LOGGERS = 'logger1, logger2'
+    process.env.EXCEPTION_LOGGERS = 'ex.logger1, ex.logger2'
+    process.env.BROKER = 'amqp://guest:guest@127.0.0.1/'
 
-	describe('#spawn', function () {
-		it('should spawn a child process', function () {
-			assert.ok(connector = cp.fork(process.cwd()), 'Child process not spawned.');
-		});
-	});
+    amqp.connect(process.env.BROKER)
+      .then((conn) => {
+        _conn = conn
+        return conn.createChannel()
+      }).then((channel) => {
+      _channel = channel
+    }).catch((err) => {
+      console.log(err)
+    })
+  })
 
-	describe('#handShake', function () {
-		it('should notify the parent process when ready within 5 seconds', function (done) {
-			this.timeout(5000);
+  after('close connection', function (done) {
+    _conn.close()
+    done()
+  })
 
-			connector.on('message', function (message) {
-				if (message.type === 'ready')
-					done();
-			});
+  describe('#start', function () {
+    it('should start the app', function (done) {
+      this.timeout(10000)
+      app = require('../app')
+      app.once('init', done)
+    })
+  })
 
-			connector.send({
-				type: 'ready',
-				data: {
-					options: {
-                        access_key_id: ACCESS_KEY_ID,
-                        secret_access_key : SECRET_ACCESS_KEY,
-                        region : REGION,
-                        api_version : API_VERSION,
-                        topic_arn: 'arn:aws:sns:us-east-1:821215833087:snsPluginTopic'
-					}
-				}
-			}, function (error) {
-				assert.ifError(error);
-			});
-		});
-	});
+  describe('#data', () => {
+    it('should send data to third party client', function (done) {
+      this.timeout(15000)
 
-	describe('#data', function (done) {
-		it('should process the JSON data', function () {
-			connector.send({
-				type: 'data',
-				data: {
-                    message : 'This is a test message from AWS SNS Connector',
-                    subject : 'Test message',
-                    target_arn : '',
-                    topic_arn : 'arn:aws:sns:us-east-1:821215833087:snsPluginTopic'
-				}
-			}, done);
-		});
-	});
+      let data = {
+        message : 'This is a test message from AWS SNS Connector',
+        subject : 'Test message',
+        targetArn : '',
+        topicArn : 'arn:aws:sns:us-east-1:821215833087:snsPluginTopic'
+      }
 
-	describe('#data', function (done) {
-		it('should process the Array data', function () {
-			connector.send({
-				type: 'data',
-				data: [
-						{
-							message : 'This is a test message from AWS SNS Connector',
-							subject : 'Test message',
-							target_arn : '',
-							topic_arn : 'arn:aws:sns:us-east-1:821215833087:snsPluginTopic'
-						},
-						{
-							message : 'This is a test message from AWS SNS Connector',
-							subject : 'Test message',
-							target_arn : '',
-							topic_arn : 'arn:aws:sns:us-east-1:821215833087:snsPluginTopic'
-						}
-					]
-			}, done);
-		});
-	});
-});
+      _channel.sendToQueue('ip.sns', new Buffer(JSON.stringify(data)))
+      setTimeout(done, 10000)
+    })
+  })
+})

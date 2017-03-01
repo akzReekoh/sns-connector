@@ -1,124 +1,120 @@
-'use strict';
+'use strict'
 
-var platform = require('./platform'),
-    isPlainObject = require('lodash.isplainobject'),
-    isEmpty = require('lodash.isempty'),
-    isArray = require('lodash.isarray'),
-    async = require('async'),
-	snsClient, config;
+let reekoh = require('reekoh')
+let _plugin = new reekoh.plugins.Connector()
+let async = require('async')
+let isArray = require('lodash.isarray')
+let isEmpty = require('lodash.isempty')
+let isPlainObject = require('lodash.isplainobject')
+let snsClient = null
 
 let sendData = (data, callback) => {
-    var params = {
-        Message: 'STRING_VALUE',
-        MessageAttributes: {
-            data: {
-                DataType: 'String',
-                StringValue: ''
-            }
-        },
-        Subject: 'STRING_VALUE',
-        TargetArn: 'STRING_VALUE',
-        TopicArn: 'STRING_VALUE'
-    };
+  var params = {
+    Message: 'STRING_VALUE',
+    MessageAttributes: {
+      data: {
+        DataType: 'String',
+        StringValue: ''
+      }
+    },
+    Subject: 'STRING_VALUE',
+    TargetArn: 'STRING_VALUE',
+    TopicArn: 'STRING_VALUE'
+  }
 
-    if(isEmpty(data.message)) {
-        params.Message = config.message;
-        params.MessageAttributes.data.StringValue = config.message;
-    }
-    else {
-        params.Message = data.message;
-        params.MessageAttributes.data.StringValue = data.message;
-    }
+  if (isEmpty(data.message)) {
+    params.Message = _plugin.config.defaultMessage
+    params.MessageAttributes.data.StringValue = _plugin.config.defaultMessage
+  } else {
+    params.Message = data.message
+    params.MessageAttributes.data.StringValue = data.message
+  }
 
-    if(isEmpty(data.subject)){
-        if(isEmpty(config.subject))
-            delete params.Subject;
-        else
-            params.Subject = config.subject;
+  if (isEmpty(data.subject)) {
+    if (isEmpty(_plugin.config.defaultSubject)) {
+      delete params.Subject
+    } else {
+      params.Subject = _plugin.config.defaultSubject
     }
-    else
-        params.Subject = data.subject;
+  } else { params.Subject = data.subject }
 
-    if(isEmpty(data.target_arn)){
-        if(isEmpty(config.target_arn))
-            delete params.targetArn;
-        else {
-            params.TargetArn = config.target_arn;
-            delete params.TopicArn;
+  if (isEmpty(data.targetArn)) {
+    if (isEmpty(_plugin.config.targetArn)) {
+      delete params.targetArn
+    } else {
+      params.TargetArn = _plugin.config.targetArn
+      delete params.TopicArn
+    }
+  } else {
+    params.TargetArn = data.targetArn
+    delete params.TopicArn
+  }
+
+  if (isEmpty(data.topicArn)) {
+    params.TopicArn = _plugin.config.topicArn
+    delete params.TargetArn
+  } else {
+    params.TopicArn = data.topicArn
+    delete params.TargetArn
+  }
+
+  snsClient.publish(params, function (error) {
+    if (!error) {
+      _plugin.log(JSON.stringify({
+        title: 'AWS SNS message sent.',
+        data: {
+          Data: params
         }
-    }
-    else {
-        params.TargetArn = data.target_arn;
-        delete params.TopicArn;
+      }))
     }
 
-    if(isEmpty(data.topic_arn)) {
-        params.TopicArn = config.topic_arn;
-        delete params.TargetArn;
-    }
-    else {
-        params.TopicArn = data.topic_arn;
-        delete params.TargetArn;
-    }
+    callback(error)
+  })
+}
 
-    snsClient.publish(params, function(error, response) {
-        if(!error){
-            platform.log(JSON.stringify({
-                title: 'AWS SNS message sent.',
-                data: {
-                    Data: params
-                }
-            }));
-        }
+/**
+ * Emitted when device data is received.
+ * This is the event to listen to in order to get real-time data feed from the connected devices.
+ * @param {object} data The data coming from the device represented as JSON Object.
+ */
+_plugin.on('data', (data) => {
+  if (isPlainObject(data)) {
+    sendData(data, (error) => {
+      if (error) {
+        console.error(error)
+        _plugin.logException(error)
+      }
+    })
+  } else if (isArray(data)) {
+    async.each(data, (datum, done) => {
+      sendData(datum, done)
+    }, (error) => {
+      if (error) {
+        console.error(error)
+        _plugin.logException(error)
+      }
+    })
+  } else {
+    _plugin.logException(new Error('Invalid data received. Must be a valid Array/JSON Object. Data ' + data))
+  }
+})
 
-        callback(error);
-    });
-};
+/**
+ * Emitted when the platform bootstraps the plugin. The plugin should listen once and execute its init process.
+ */
+_plugin.once('ready', () => {
+  let AWS = require('aws-sdk')
 
-platform.on('data', function (data) {
-    if(isPlainObject(data)){
-        sendData(data, (error) => {
-            if(error) {
-                console.error(error);
-                platform.handleException(error);
-            }
-        });
-    }
-    else if(isArray(data)){
-        async.each(data, (datum, done) => {
-            sendData(datum, done);
-        }, (error) => {
-            if(error) {
-                console.error(error);
-                platform.handleException(error);
-            }
-        });
-    }
-    else
-        platform.handleException(new Error('Invalid data received. Must be a valid Array/JSON Object. Data ' + data));
-});
+  snsClient = new AWS.SNS({
+    accessKeyId: _plugin.config.accessKeyId,
+    secretAccessKey: _plugin.config.secretAccessKey,
+    region: _plugin.config.region,
+    version: _plugin.config.apiVersion,
+    sslEnabled: true
+  })
 
-platform.once('close', function () {
-    platform.notifyClose();
-});
+  _plugin.log('SNS Connector has been initialized.')
+  _plugin.emit('init')
+})
 
-platform.once('ready', function (options) {
-    var AWS = require('aws-sdk');
-
-    config = {
-        message: options.default_message,
-        topicArn: options.topic_arn,
-        targetArn: options.target_arn,
-        subject : options.default_subject
-    };
-    snsClient = new AWS.SNS({
-        accessKeyId: options.access_key_id,
-        secretAccessKey: options.secret_access_key,
-        region: options.region,
-        version: options.api_version,
-        sslEnabled: true
-    });
-
-    platform.log('AWS SNS Connector Initialized.');
-	platform.notifyReady();
-});
+module.exports = _plugin

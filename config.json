@@ -1,11 +1,12 @@
 {
-  "access_key_id":{
+  "accessKeyId":{
     "label": "Access Key ID",
     "type": "String",
     "required": true,
-    "help": "Please provide your AWS Access Key ID."
+    "help": "Please provide your AWS Access Key ID.",
+    "maxLength": 100
   },
-  "secret_access_key":{
+  "secretAccessKey":{
     "label": "Secret Access Key",
     "type": "Password",
     "required": true,
@@ -15,36 +16,42 @@
     "label": "Region",
     "type": "String",
     "required": true,
-    "help": "Please provide your AWS Region."
+    "help": "Please provide your AWS Region.",
+    "maxLength": 20
   },
-  "api_version":{
+  "apiVersion":{
     "label": "API Version",
     "type": "String",
     "required": true,
-    "help": "Please provide your AWS API Version."
+    "help": "Please provide your AWS API Version.",
+    "maxLength": 20
   },
-  "default_message":{
+  "defaultMessage":{
     "label": "Default Message",
     "type": "String",
     "required": true,
-    "help": "Please provide a default message."
+    "help": "Please provide a default message.",
+    "maxLength": 500
   },
-  "topic_arn":{
+  "topicArn":{
     "label": "Default Topic ARN",
     "type": "String",
     "required": true,
-    "help": "Please provide a default Topic ARN."
+    "help": "Please provide a default Topic ARN.",
+    "maxLength": 100
   },
-  "target_arn":{
+  "targetArn":{
     "label": "Default Target ARN",
     "type": "String",
     "required": false,
-    "help": "(Optional)Please provide a default Target ARN."
+    "help": "(Optional)Please provide a default Target ARN.",
+    "maxLength": 100
   },
-  "default_subject":{
+  "defaultSubject":{
     "label": "Default Subject",
     "type": "String",
     "required": false,
-    "help": "(Optional)Please provide a default subject."
+    "help": "(Optional)Please provide a default subject.",
+    "maxLength": 200
   }
 }
