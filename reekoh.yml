@@ -1,0 +1,66 @@
+---
+version: 1.0.0 # So we could parse new versions of the manifest without dropping support for older ones. The CLI should be able to parse the YAML file based on the version
+kind: Plugin # We will add other objects that can be uploaded in the registry like: Add-ons, full-blown applications, bots and others TBD
+metadata:
+  name: sns-connector
+  description: AWS SNS Connector Plugin for the Reekoh IoT Platform.
+  documentation: ./README.md
+  icon: ./sns.png
+  signupLink:
+  type: Connector
+  price: 0
+  tags:
+    - AWS
+    - Notifications
+  config:
+    accessKeyId:
+      label: Access Key ID
+      type: String
+      required: true
+      help: Please provide your AWS Access Key ID.
+      maxLength: 1000
+    secretAccessKey:
+      label: Secret Access Key
+      type: Password
+      required: true
+      help: Please provide your AWS Secret Access Key.
+    region:
+      label: Region
+      type: String
+      required: true
+      help: Please provide your AWS Region.
+      maxLength: 1000
+    apiVersion:
+      label: API Version
+      type: String
+      required: true
+      help: Please provide your AWS API Version.
+      maxLength: 1000
+    defaultMessage:
+      label: Default Message
+      type: String
+      required: true
+      help: Please provide a default message.
+      maxLength: 1000
+    topicArn:
+      label: Default Topic ARN
+      type: String
+      required: true
+      help: Please provide a default Topic ARN.
+      maxLength: 1000
+    targetArn:
+      label: Default Target ARN
+      type: String
+      required: false
+      help: "(Optional)Please provide a default Target ARN."
+      maxLength: 1000
+    defaultSubject:
+      label: Default Subject
+      type: String
+      required: false
+      help: "(Optional)Please provide a default subject."
+      maxLength: 1000
+  release:
+    version: 1.0.0
+    notes: path/to/RELEASENOTESv1.0.0.md
+    image: path/to/docker/image

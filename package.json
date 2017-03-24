@@ -12,23 +12,23 @@
     "url": "https://github.com/Reekoh/sns-connector"
   },
   "dependencies": {
-    "async": "^1.5.2",
-    "aws-sdk": "^2.2.19",
-    "lodash.isarray": "^4.0.0",
-    "lodash.isempty": "^4.2.1",
-    "lodash.isplainobject": "^4.0.4",
-    "reekoh": "^1.0.2"
+    "async": "=1.5.2",
+    "aws-sdk": "=2.2.19",
+    "lodash.isarray": "=4.0.0",
+    "lodash.isempty": "=4.2.1",
+    "lodash.isplainobject": "=4.0.4",
+    "reekoh": "=1.0.2"
   },
   "devDependencies": {
-    "gulp": "^3.9.1",
-    "gulp-cli": "^1.2.1",
-    "gulp-jshint": "^2.0.0",
-    "gulp-json-lint": "^0.1.0",
-    "gulp-mocha": "^2.2.0",
-    "gulp-plumber": "^1.1.0",
-    "gulp-standard": "^8.0.4",
-    "jshint": "^2.9.1",
-    "mocha": "^2.4.5"
+    "gulp": "=3.9.1",
+    "gulp-cli": "=1.2.1",
+    "gulp-jshint": "=2.0.0",
+    "gulp-json-lint": "=0.1.0",
+    "gulp-mocha": "=2.2.0",
+    "gulp-plumber": "=1.1.0",
+    "gulp-standard": "=8.0.4",
+    "jshint": "=2.9.1",
+    "mocha": "=2.4.5"
   },
-  "license": "LGPL-3.0"
+  "license": "GPL 3.0"
 }

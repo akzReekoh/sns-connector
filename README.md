@@ -31,7 +31,7 @@ These parameters are then injected to the plugin from the platform.
 {
     message: 'this is a sample message',
     subject: 'Test',(optional)
-    target_arn: '<target_arn>', (Do not include this if topic_arn is provided)
-    topic_arn: '<topic_arn>', (Do not include this if target_arn is provided)
+    targetArn: '<target_arn>', (Do not include this if topic_arn is provided)
+    topicArn: '<topic_arn>', (Do not include this if target_arn is provided)
 }
 ```
