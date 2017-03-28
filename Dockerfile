@@ -1,4 +1,4 @@
-hFROM node:boron
+FROM node:boron
 
 MAINTAINER Reekoh
 
