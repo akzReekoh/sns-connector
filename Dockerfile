@@ -1,12 +1,16 @@
-FROM node:6.10.0
+hFROM node:boron
 
 MAINTAINER Reekoh
 
-WORKDIR /home
+RUN apt-get update && apt-get install -y build-essential
+
+RUN mkdir -p /home/node/sns
+COPY . /home/node/sns
+
+WORKDIR /home/node/sns
 
 # Install dependencies
-ADD . /home
-RUN npm install pm2 -g
-RUN npm install
+RUN npm install pm2 yarn -g
+RUN yarn install
 
 CMD ["pm2-docker", "--json", "app.yml"]
